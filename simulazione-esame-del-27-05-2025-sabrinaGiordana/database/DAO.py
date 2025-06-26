@@ -58,6 +58,33 @@ class DAO():
         cursor.close()
         conn.close()
 
+    @staticmethod
+    def getArchiV2(anno):
+        conn = DBConnect.get_connection()
+        result = []
+        cursor = conn.cursor(dictionary=True)
+        query = """ select c.circuitId, c2.circuitId, count(distinct r2.driverId) as piloti
+                    from circuits c , circuits c2 , results r , results r2, races rac , races rac3 
+                    where rac3.circuitId  = c2.circuitId 
+                    and rac.circuitId  = c.circuitId 
+                    and r2.raceId = rac3.raceId 
+                    and r.raceId = rac.raceId
+                    and rac3.`year` = %s and rac.`year` = %s
+                    and r2.driverId = r.driverId
+                    and r.statusId = 1 
+                    and r2.statusId = 1 
+                    and rac.circuitId < rac3.circuitId
+                    group by c.circuitId, c2.circuitId"""
+
+
+        cursor.execute(query,(anno,))
+        for row in cursor:
+            result.append(row))
+
+        cursor.close()
+        conn.close()
+        
+
         return result
 
 
